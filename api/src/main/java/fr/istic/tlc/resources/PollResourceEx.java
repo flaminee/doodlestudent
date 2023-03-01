@@ -109,6 +109,8 @@ public class PollResourceEx {
 	@PostMapping("/polls")
 	@Transactional
 	public ResponseEntity<Poll> createPoll(@Valid @RequestBody Poll poll) {
+
+		System.out.println("toto");
 		// On enregistre le poll dans la bdd
 		String padId = Utils.getInstance().generateSlug(15);
 		if (this.usePad) {

@@ -1,0 +1,60 @@
+
+
+version: "3.8"
+services:
+  db:
+    image: mysql
+    hostname: db
+    volumes:
+      - ./api/src/main/resources/db/migration:/docker-entrypoint-initdb.d
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=tlc
+      - MYSQL_USER=tlc
+      - MYSQL_PASSWORD=tlc
+  etherpad:
+    image: etherpad/etherpad:latest
+    hostname: etherpad
+    ports:
+      - "9001:9001"
+    volumes:
+      - ./api/APIKEY.txt:/opt/etherpad-lite/APIKEY.txt
+    depends_on:
+      - db
+  mail:
+    image: bytemark/smtp
+    restart: always
+    ports:
+      - "2525:25"
+      
+  backend:
+    build: ./api
+    image: api
+    hostname: backend
+    depends_on:
+      - db
+      - mail
+      - etherpad
+    ports:
+      - "8080:8080"
+    environment:
+      - quarkus.datasource.jdbc.url=jdbc:mysql://db:3306/tlc?useUnicode=true&serverTimezone=Europe/Paris
+      - doodle.internalPadUrl=http://etherpad:9001/
+      - doodle.externalPadUrl=http://etherpad:9001/
+
+  frontend:
+    build: ./front
+    image: front
+    depends_on:
+      - backend
+    ports:
+      - "81:81"
+      
+      
+      
+
+  
+
+

@@ -3,7 +3,7 @@ services:
   db:
     image: mysql
     ports:
-      - "3306:3306"
+      - "3307:3307"
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=tlc
@@ -15,8 +15,19 @@ services:
       - "9001:9001"
     volumes:
       - ./APIKEY.txt:/opt/etherpad-lite/APIKEY.txt
+    depends_on:
+      - db
   mail:
     image: bytemark/smtp
     restart: always
     ports:
       - "2525:25"
+  backend:
+    build: .
+    image: api
+    depends_on:
+      - db
+      - mail
+      - etherpad
+    ports:
+      - "8080:8080"
